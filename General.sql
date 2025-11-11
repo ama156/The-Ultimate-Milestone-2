@@ -135,7 +135,22 @@ CREATE PROC allEmployeeAttendance AS
         A.total_duration,
         A.status
     FROM Attendance A
+    -- TODO: not sure if this is how dates work
     INNER JOIN Employee E ON A.emp_ID = E.employee_ID
     WHERE A.date = CURDATE() - 1;
+
+GO;
+
+----------------------------------------------------------------
+--                          EXTRA PROC
+----------------------------------------------------------------
+
+CREATE PROC Update_All_Salaries AS
+
+    UPDATE E
+    SET E.salary = R.base_salary + ((R.percentage_YOE / 100.0) * E.years_of_experience * R.base_salary)
+    FROM Employee E
+    JOIN Employee_Role ER ON ER.emp_ID = E.employee_ID
+    JOIN Role R ON R.role_name = ER.role_name;
 
 GO;

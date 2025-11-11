@@ -58,7 +58,12 @@
         annual_balance INT,
         accidental_balance INT,
 
-        PRIMARY KEY (role_name)
+        PRIMARY KEY (role_name),
+
+        CHECK   ((role_name LIKE 'HR_Representative%' AND SUBSTRING(role_name, 18, LEN(role_name) - 17) IN (SELECT name FROM department))
+                OR
+                (role_name NOT LIKE 'HR_Representative%'))
+
     );
 
     -- 5. Employee_Role
