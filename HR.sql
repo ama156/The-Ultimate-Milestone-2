@@ -82,5 +82,32 @@ AS
     END;
 
 GO;
+
+CREATE PROC HR_approval_unpaid
+    @request_ID INT,
+    @HR_ID INT
+AS
+
+    DECLARE @emp_ID INT;
+    DECLARE @duration INT;
+    DECLARE @unpaid_leave_count INT;
+
+    SELECT @emp_ID = emp_ID, @duration = num_days
+    FROM Leave_request
+    WHERE request_ID = @request_ID;
+
+    SET @unpaid_leave_count = (SELECT COUNT(*)
+                                FROM Unpaid_Leave
+                                WHERE emp_ID = @emp_ID);
+
+    IF @duration > 30 OR @unpaid_leave_count > 0 BEGIN
+        INSERT INTO Employee_Approve_Leave (emp1_ID, leave_ID, status)
+        VALUES (@HR_ID, @request_ID, 'rejected');
+    END ELSE BEGIN
+        INSERT INTO Employee_Approve_Leave (emp1_ID, leave_ID, status)
+        VALUES (@HR_ID, @request_ID, 'approved');
+    END;
+
+GO;
 -- TODO: complete rest of HR
 -- yes I have so little respect for this thing that even the only things that I did for this file is not correct
