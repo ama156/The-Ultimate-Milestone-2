@@ -147,24 +147,32 @@ BEGIN
 
     IF EXISTS (
         SELECT 1
-        FROM Leave L
+        FROM
+            (SELECT emp_ID FROM Annual_Leave
+            UNION
+            SELECT emp_ID FROM Accidental_Leave
+            UNION
+            SELECT emp_ID FROM Medical_Leave
+            UNION
+            SELECT emp_ID FROM Unpaid_Leave
+            UNION
+            SELECT emp_ID FROM Compensation_Leave) AS L
         WHERE L.emp_ID = @employee_ID
           AND (
               L.final_approval_status = 'approved'
               OR L.final_approval_status = 'pending'
           )
           AND (
-              @from_date BETWEEN L.start_date AND L.end_date
-              OR @to_date BETWEEN L.start_date AND L.end_date
+              (@from_date BETWEEN L.start_date AND L.end_date)
+              OR (@to_date BETWEEN L.start_date AND L.end_date)
               OR (L.start_date BETWEEN @from_date AND @to_date)
               OR (L.end_date BETWEEN @from_date AND @to_date)
-              -- not sure if one of these is useless, but I added all for good measure
-        --I get it but I do think 2 checks (in either format) are enough
           )
-    )
+    ) BEGIN
         SET @isOnLeave = 1;
-    ELSE
+    END ELSE BEGIN
         SET @isOnLeave = 0;
+    END
 
     RETURN @isOnLeave;
 END;
@@ -185,8 +193,9 @@ CREATE PROC Submit_annual
     VALUES(CAST(GETDATE() AS DATE), @start_date, @end_date, 'pending');
 --This thing gets the last value inserted into an "identity column", in this case our employee_id
     DECLARE @request_id INT = SCOPE_IDENTITY();
-    INSERT INTO Annual_Leave(@request_id, @employee_id, @replacement_emp)
-    END 
+    INSERT INTO Annual_Leave(request_ID, emp_ID, replacement_emp)
+    VALUES (@request_ID, @employee_ID, @replacement_emp);
+    END
     GO;
         
         
@@ -244,9 +253,9 @@ CREATE PROC Submit_medical
 @file_name VARCHAR(50)
 AS
 BEGIN 
-INSERT INTO Leave VALUES(CAST (GETDATE() AS DATE, @start_date, @end_date, 'pending')
+INSERT INTO Leave VALUES(CAST (GETDATE() AS DATE), @start_date, @end_date, 'pending')
 DECLARE @request_id INT = SCOPE_IDENTITY();
-INSERT INTO Medical_Leave VALUES(@request_id, @insurance_status, @disability_details,@employee_ID)
+INSERT INTO Medical_Leave VALUES(@request_id, @insurance_status, @disability_details, @employee_ID)
 -- Idk da sa7 wala la2
 UPDATE Document 
 SET medical_ID = @request_id 

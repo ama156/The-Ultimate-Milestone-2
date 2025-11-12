@@ -35,6 +35,7 @@ AS
 
 GO;
 
+-- TODO: not sure about the object id part bas m3lena
 CREATE PROC Create_Holiday AS
     IF OBJECT_ID('Holiday', 'U') IS NULL
     BEGIN
@@ -57,7 +58,7 @@ AS
 
 GO;
 
-CREATE PROC Initiate_Attendance AS -- kan fee typo hena
+CREATE PROC Initiate_Attendance AS
     
     INSERT INTO Attendance (emp_ID, [date], status)
     SELECT 
@@ -70,15 +71,6 @@ CREATE PROC Initiate_Attendance AS -- kan fee typo hena
         FROM Attendance 
         WHERE [date] = CAST(GETDATE() AS DATE)
     );
-
---  i fixed it but i kept the old comment just in case
-                 -- TODO: Not sure if I should add this
-
-                 /*WHERE employee_ID NOT IN (
-                      SELECT emp_ID 
-                      FROM Attendance 
-                       WHERE date = CURDATE()
-                        );*/
 
 GO;
 
@@ -98,7 +90,7 @@ AS
 
 GO;
 
-CREATE PROC Remove_Holiday AS       -- fixed DELETE statement was in mysql syntax
+CREATE PROC Remove_Holiday AS
     DELETE FROM Attendance
     WHERE [date] IN (
         SELECT A.[date]

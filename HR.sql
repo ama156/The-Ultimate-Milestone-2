@@ -92,6 +92,7 @@ AS
     DECLARE @duration INT;
     DECLARE @unpaid_leave_count INT;
 
+    -- TODO: this is wrong, fix later
     SELECT @emp_ID = emp_ID, @duration = num_days
     FROM Leave_request
     WHERE request_ID = @request_ID;
@@ -120,6 +121,7 @@ AS
     DECLARE @time_spent INT = 0;
     DECLARE @same_month BIT;
 
+    -- TODO: this is wrong fix it
     SELECT @emp_ID = emp_ID
     FROM Leave_request
     WHERE request_ID = @request_ID;
