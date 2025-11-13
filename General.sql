@@ -24,42 +24,8 @@ GO;
 
 CREATE PROC dropAllProceduresFunctionsViews AS
     
-    --TODO: finish this after finishing all the other functions adn procedures
-    -- TODO update check and make sure everything is covered
-    --also revise code this is from copilot so im not sure about it
-
-BEGIN
-    DECLARE @sql NVARCHAR(MAX) = '';
+    --TODO: finish this after finishing all the other functions and procedures
     
-    -- Drop all user defined functions
-    SELECT @sql = @sql + 'DROP FUNCTION IF EXISTS ' + QUOTENAME(SCHEMA_NAME(schema_id)) + '.' + QUOTENAME(name) + '; '
-    FROM sys.objects
-    WHERE type IN ('FN', 'IF', 'TF')  -- Scalar, Inline Table-Valued, Table-Valued
-      AND is_ms_shipped = 0;
-    
-    -- Drop all user-defined views
-    SELECT @sql = @sql + 'DROP VIEW IF EXISTS ' + QUOTENAME(SCHEMA_NAME(schema_id)) + '.' + QUOTENAME(name) + '; '
-    FROM sys.objects
-    WHERE type = 'V'  -- Views
-      AND is_ms_shipped = 0;
-    
-    -- Drop all user-defined procedures EXCEPT this one
-    SELECT @sql = @sql + 'DROP PROCEDURE IF EXISTS ' + QUOTENAME(SCHEMA_NAME(schema_id)) + '.' + QUOTENAME(name) + '; '
-    FROM sys.objects
-    WHERE type = 'P'  -- Stored Procedures
-      AND is_ms_shipped = 0
-      AND name <> 'dropAllProceduresFunctionsViews';  -- Don't drop itself
-    
-    -- Execute all DROP statements
-    IF LEN(@sql) > 0
-        EXEC sp_executesql @sql;
-END;
-GO;
-
-
-
-
-
 GO;
 
 CREATE PROC clearAllTables AS
