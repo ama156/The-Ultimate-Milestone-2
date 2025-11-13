@@ -130,10 +130,6 @@ AS
     SELECT @emp_ID = emp_ID
     FROM 
         Leave
-        JOIN Annual_Leave ON Leave.request_ID = Annual_Leave.request_ID
-        JOIN Accidental_Leave ON Leave.request_ID = Accidental_Leave.request_ID
-        JOIN Medical_Leave ON Leave.request_ID = Medical_Leave.request_ID
-        JOIN Unpaid_Leave ON Leave.request_ID = Unpaid_Leave.request_ID
         JOIN Compensation_Leave ON Leave.request_ID = Compensation_Leave.request_ID
     WHERE Leave.request_ID = @request_ID;
 
@@ -169,5 +165,30 @@ AS
     END;
 
 GO;
+
+CREATE PROC Deduction_hours
+    @employee_ID INT
+AS
+
+    -- TODO: same as previous TODO
+    DECLARE @attendance_ID INT = -1;
+    SELECT TOP (1) 
+        @attendance_ID = attendance_ID
+    FROM Attendance
+    WHERE 
+        @emp_ID = employee_ID
+        AND MONTH([date]) = MONTH(GETDATE())
+        AND total_duration < 8
+    ORDER BY [date];
+
+    IF @attendance_ID <> -1 BEGIN
+
+        -- TODO: IDK what the amount is, neither the status
+        INSERT INTO Deduction (emp_ID, [date], type, attendance_ID)
+        VALUES (@employee_ID, CAST(GETDATE() AS DATE), 'missing hours', @attendance_ID);
+
+    END;
+
+GO;
+
 -- TODO: complete rest of HR
--- yes I have so little respect for this thing that even the only things that I did for this file is not correct
