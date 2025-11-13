@@ -92,15 +92,20 @@ AS
     DECLARE @duration INT;
     DECLARE @unpaid_leave_count INT;
 
-    -- TODO: this is wrong, fix later
+    -- TODO: check if this is correct
     SELECT @emp_ID = emp_ID, @duration = num_days
-    FROM Leave_request
-    WHERE request_ID = @request_ID;
+    FROM
+        Leave
+        JOIN Unpaid_Leave ON Leave.request_ID = Unpaid_Leave.request_ID
+    WHERE Leave.request_ID = @request_ID;
 
-    -- TODO: this is wrong, as you need to check the count per year, or otherwise use EXISTS
-    SET @unpaid_leave_count = (SELECT COUNT(*)
-                                FROM Unpaid_Leave
-                                WHERE emp_ID = @emp_ID);
+    -- TODO: check if this is correct
+    SELECT @unpaid_leave_count = COUNT(*)
+    FROM 
+        Leave 
+        JOIN Unpaid_Leave ON Leave.request_ID = Unpaid_Leave.request_ID
+    WHERE Leave.status = 'approved' AND YEAR(Leave.request_date) = YEAR(GETDATE())
+    GROUP BY YEAR(Leave.request_date);
 
     IF @duration > 30 OR @unpaid_leave_count > 0 BEGIN
         INSERT INTO Employee_Approve_Leave (emp1_ID, leave_ID, status)
@@ -123,8 +128,14 @@ AS
 
     -- TODO: this is wrong fix it
     SELECT @emp_ID = emp_ID
-    FROM Leave_request
-    WHERE request_ID = @request_ID;
+    FROM 
+        Leave
+        JOIN Annual_Leave ON Leave.request_ID = Annual_Leave.request_ID
+        JOIN Accidental_Leave ON Leave.request_ID = Accidental_Leave.request_ID
+        JOIN Medical_Leave ON Leave.request_ID = Medical_Leave.request_ID
+        JOIN Unpaid_Leave ON Leave.request_ID = Unpaid_Leave.request_ID
+        JOIN Compensation_Leave ON Leave.request_ID = Compensation_Leave.request_ID
+    WHERE Leave.request_ID = @request_ID;
 
     SELECT @time_spent = total_duration
     FROM Attendance

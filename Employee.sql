@@ -183,25 +183,22 @@ GO;
 CREATE PROC Submit_annual
     @employee_id INT, 
     @replacement_emp INT, 
-    @start_date DATE,
-    @end_date DATE
-    AS 
-    BEGIN
+    @start_date DATE, 
+    @end_date DATE 
+AS 
+
     --idk if this insert style is redundant because this just ensures everything goes 
     --into the correct column if any chnages to columns are made but supposedly there shouldn't be
     INSERT INTO Leave(date_of_request, start_date, end_date, final_approval_status)
     VALUES(CAST(GETDATE() AS DATE), @start_date, @end_date, 'pending');
---This thing gets the last value inserted into an "identity column", in this case our employee_id
+    
+    --This thing gets the last value inserted into an "identity column", in this case our employee_id
     DECLARE @request_id INT = SCOPE_IDENTITY();
     INSERT INTO Annual_Leave(request_ID, emp_ID, replacement_emp)
     VALUES (@request_ID, @employee_ID, @replacement_emp);
-    END
-    GO;
-        
-        
-        
 
-    
+GO;
+            
 --Adel's function
 CREATE FUNCTION Status_leaves
 (
@@ -228,7 +225,7 @@ RETURN
 
 GO;
 
---More of Salma's tuff (pls correct me if I made a mistakeee)
+--More of Salma's stuff (pls correct me if I made a mistakeee)
 CREATE PROC Submit_accidental
 @employee_ID INT, 
 @start_date DATE, 

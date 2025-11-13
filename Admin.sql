@@ -136,7 +136,7 @@ AS
       AND [date] IN (
           SELECT A.[date]
           FROM Attendance A
-          JOIN Leave_ L ON A.[date] BETWEEN L.start_date AND L.end_date
+          JOIN Leave L ON A.[date] BETWEEN L.start_date AND L.end_date
           WHERE L.emp_ID = @emp_ID
             AND L.final_approval_status = 'approved'
       );
