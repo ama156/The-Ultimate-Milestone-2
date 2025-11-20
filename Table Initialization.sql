@@ -1,4 +1,11 @@
-﻿CREATE PROC createAllTables AS
+﻿DROP DATABASE IF EXISTS test;
+CREATE DATABASE test;
+
+USE test;
+
+GO;
+
+CREATE PROC createAllTables AS
     -- 1. Department
     CREATE TABLE Department (
         name VARCHAR(50),

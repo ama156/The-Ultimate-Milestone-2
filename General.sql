@@ -12,7 +12,7 @@
     DROP TABLE IF EXISTS Medical_Leave;
     DROP TABLE IF EXISTS Accidental_Leave;
     DROP TABLE IF EXISTS Annual_Leave;
-    DROP TABLE IF EXISTS Leave_; -- changed from Leave to Leave_ to avoid conflict with SQL keyword
+    DROP TABLE IF EXISTS Leave; -- changed from Leave to Leave_ to avoid conflict with SQL keyword
     DROP TABLE IF EXISTS Role_existsIn_Department;
     DROP TABLE IF EXISTS Employee_Role;
     DROP TABLE IF EXISTS Role;
@@ -22,11 +22,62 @@
 
 GO;
 
-CREATE PROC dropAllProceduresFunctionsViews AS
+CREATE PROC dropAllProceduresFunctionsViews
+AS
+BEGIN
     
-    --TODO: finish this after finishing all the other functions and procedures
-    
-GO;
+    DROP FUNCTION IF EXISTS HRLoginValidation;
+    DROP FUNCTION IF EXISTS EmployeeLoginValidation;
+    DROP FUNCTION IF EXISTS MyPerformance;
+    DROP FUNCTION IF EXISTS MyAttendance;
+    DROP FUNCTION IF EXISTS Last_month_payroll;
+    DROP FUNCTION IF EXISTS Deductions_Attendance;
+    DROP FUNCTION IF EXISTS Is_On_Leave;
+    DROP FUNCTION IF EXISTS Status_leaves;
+
+    DROP VIEW IF EXISTS allEmployeeProfiles;
+    DROP VIEW IF EXISTS NoEmployeeDept;
+    DROP VIEW IF EXISTS allPerformance;
+    DROP VIEW IF EXISTS allRejectedMedicals;
+    DROP VIEW IF EXISTS allEmployeeAttendance;
+   
+    DROP PROCEDURE IF EXISTS Update_Status_Doc;
+    DROP PROCEDURE IF EXISTS Remove_Deductions;
+    DROP PROCEDURE IF EXISTS Update_Employment_Status;
+    DROP PROCEDURE IF EXISTS Create_Holiday;
+    DROP PROCEDURE IF EXISTS Add_Holiday;
+    DROP PROCEDURE IF EXISTS Initiate_Attendance;
+    DROP PROCEDURE IF EXISTS Update_Attendance;
+    DROP PROCEDURE IF EXISTS Remove_Holiday;
+    DROP PROCEDURE IF EXISTS Remove_DayOff;
+    DROP PROCEDURE IF EXISTS Remove_Approved_Leaves;
+    DROP PROCEDURE IF EXISTS Replace_Employee;
+
+    DROP PROCEDURE IF EXISTS HR_Approval_an_acc;
+    DROP PROCEDURE IF EXISTS HR_approval_unpaid;
+    DROP PROCEDURE IF EXISTS HR_approval_compensation;
+   
+    DROP PROCEDURE IF EXISTS Deduction_hours;
+    DROP PROCEDURE IF EXISTS Deduction_days;
+    DROP PROCEDURE IF EXISTS Deduction_unpaid;
+    DROP PROCEDURE IF EXISTS Add_Payroll;
+
+    DROP PROCEDURE IF EXISTS Submit_annual;
+    DROP PROCEDURE IF EXISTS Upperboard_approve_annual;
+    DROP PROCEDURE IF EXISTS Submit_accidental;
+    DROP PROCEDURE IF EXISTS Submit_medical;
+    DROP PROCEDURE IF EXISTS Submit_unpaid;
+    DROP PROCEDURE IF EXISTS Upperboard_approve_unpaids;
+    DROP PROCEDURE IF EXISTS Submit_compensation;
+    DROP PROCEDURE IF EXISTS Dean_andHR_Evaluation;
+
+    DROP PROCEDURE IF EXISTS createAllTables;
+    DROP PROCEDURE IF EXISTS dropAllTables;
+    DROP PROCEDURE IF EXISTS clearAllTables;
+    DROP PROCEDURE IF EXISTS Update_All_Salaries;
+
+END;
+GO
 
 CREATE PROC clearAllTables AS
     

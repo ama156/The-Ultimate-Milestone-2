@@ -10,15 +10,17 @@ AS
 BEGIN
     DECLARE @isValid BIT;
 
+    DECLARE @b BIT;
+
     IF EXISTS (
-        SELECT 1
+        SELECT *
         FROM Employee
         WHERE employee_ID = @employee_ID
           AND password = @password
     )
-        SET @isValid = 1;  -- Success
+        SET @isValid = 1;
     ELSE
-        SET @isValid = 0;  -- Failure
+        SET @isValid = 0;
 
     RETURN @isValid;
 END;
@@ -188,6 +190,101 @@ AS
         VALUES (@employee_ID, CAST(GETDATE() AS DATE), 'missing hours', @attendance_ID);
 
     END;
+
+GO;
+
+CREATE FUNCTION Bonus_amount (@employee_ID INT)
+    RETURNS DECIMAL(10,2)
+AS
+BEGIN
+    DECLARE @salary DECIMAL(10,10),
+            @overtime_factor DECIMAL(10,10),
+            @rate_per_hour DECIMAL(10,10),
+            @bonus DECIMAL(10,2);
+
+    -- Get employee salary
+    SELECT @salary = salary
+    FROM Employee
+    WHERE employee_ID = @employee_ID;
+
+    SELECT TOP 1 @overtime_factor = percentage_overtime
+    FROM Employee_Role ER
+    JOIN Role R ON ER.role_name = R.role_name
+    WHERE emp_ID = @employee_ID
+    ORDER BY R.rank ASC;
+
+    -- Rate per hour formula
+    SET @rate_per_hour = (@salary / 22) / 8;
+
+    -- Compute overtime across current month
+    SELECT @bonus =
+        SUM(
+            @rate_per_hour *
+            ((@overtime_factor *
+              CASE 
+                    WHEN total_duration > 8 THEN total_duration - 8
+                    ELSE 0
+              END) / 100.0)
+        )
+    FROM Attendance
+    WHERE emp_ID = @employee_ID
+      AND MONTH(date) = MONTH(GETDATE())
+      AND YEAR(date) = YEAR(GETDATE());
+
+    RETURN ISNULL(@bonus, 0);
+END;
+
+GO;
+
+CREATE PROCEDURE Add_Payroll
+    @employee_ID INT,
+    @from_date DATE,
+    @to_date DATE
+AS
+BEGIN
+    DECLARE @salary DECIMAL(10,10),
+            @bonus DECIMAL(10,10),
+            @deductions DECIMAL(10,10);
+
+    -- Get salary
+    SELECT @salary = salary
+    FROM Employee
+    WHERE employee_ID = @employee_ID;
+
+    -- Get bonus via function
+    SELECT @bonus = dbo.Bonus_amount(@employee_ID);
+
+    -- Sum finalized deductions for the period
+    SELECT @deductions = SUM(amount)
+    FROM Deduction
+    WHERE emp_ID = @employee_ID
+        AND date BETWEEN @from_date AND @to_date
+        AND status = 'pending';        -- not yet reflected in payroll
+
+    SET @deductions = ISNULL(@deductions, 0);
+
+    -- Insert payroll row
+    INSERT INTO Payroll(payment_date, final_salary_amount,
+                        from_date, to_date, comments,
+                        bonus_amount, deductions_amount, emp_ID)
+    VALUES(
+        GETDATE(),
+        @salary + @bonus - @deductions,
+        @from_date,
+        @to_date,
+        NULL,
+        @bonus,
+        @deductions,
+        @employee_ID
+    );
+
+    -- Finalize deductions now that they are reflected
+    UPDATE Deduction
+    SET status = 'finalized'
+    WHERE emp_ID = @employee_ID
+      AND date BETWEEN @from_date AND @to_date
+      AND status = 'pending';
+END;
 
 GO;
 
