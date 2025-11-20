@@ -1,9 +1,10 @@
-﻿DROP DATABASE IF EXISTS test;
+﻿USE placeholder;
+DROP DATABASE IF EXISTS test;
 CREATE DATABASE test;
 
 USE test;
 
-GO;
+GO
 
 CREATE PROC createAllTables AS
     -- 1. Department
@@ -71,7 +72,6 @@ CREATE PROC createAllTables AS
         CHECK   ((role_name LIKE 'HR_Representative%' AND SUBSTRING(role_name, 18, LEN(role_name) - 17) IN (SELECT name FROM department))
                 OR
                 (role_name NOT LIKE 'HR_Representative%'))
-
     );
 
     -- 5. Employee_Role
@@ -281,4 +281,4 @@ CREATE PROC createAllTables AS
 
     -- TODO: create assertions and apply advanced checks
 
-GO;
+GO
