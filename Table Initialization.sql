@@ -1,4 +1,12 @@
-﻿CREATE PROC createAllTables AS
+﻿USE placeholder;
+DROP DATABASE IF EXISTS test;
+CREATE DATABASE test;
+
+USE test;
+
+GO
+
+CREATE PROC createAllTables AS
     -- 1. Department
     CREATE TABLE Department (
         name VARCHAR(50),
@@ -60,11 +68,6 @@
         accidental_balance INT,
 
         PRIMARY KEY (role_name),
-
-        CHECK   ((role_name LIKE 'HR_Representative%' AND SUBSTRING(role_name, 18, LEN(role_name) - 17) IN (SELECT name FROM department))
-                OR
-                (role_name NOT LIKE 'HR_Representative%'))
-
     );
 
     -- 5. Employee_Role
@@ -264,14 +267,30 @@
         leave_ID INT,
         status VARCHAR(50) DEFAULT 'pending',
 
-        PRIMARY KEY (emp1_ID, leave_ID),            -- fixed typo in leave_ID not eeave_ID
+        PRIMARY KEY (emp1_ID, leave_ID),
         FOREIGN KEY (emp1_ID) REFERENCES Employee(employee_ID),
         FOREIGN KEY (leave_ID) REFERENCES Leave(request_ID),
 
         CHECK (status IN ('approved', 'rejected', 'pending'))
     );
 
-    -- TODO: create assertions and apply advanced checks
+GO
 
-GO;
+CREATE TRIGGER trg_InsertEmployeeRole
+    ON Role INSTEAD OF INSERT
+    AS BEGIN
+        IF EXISTS (
+            -- this thing is brutal, it uses demorgans to reverse a condition that is already
+            -- way too complicated
+            SELECT 1
+            FROM inserted i
+            WHERE i.role_name LIKE 'HR_Representative%'
+              AND SUBSTRING(i.role_name, 18, LEN(i.role_name) - 17)
+                    NOT IN (SELECT name FROM Department)
+        ) BEGIN
+            PRINT 'Invalid role_name department.'
+            -- TODO: make it not insert the value if it is wrong
+        END;
+    END;
 
+GO
