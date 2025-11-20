@@ -12,7 +12,7 @@
     DROP TABLE IF EXISTS Medical_Leave;
     DROP TABLE IF EXISTS Accidental_Leave;
     DROP TABLE IF EXISTS Annual_Leave;
-    DROP TABLE IF EXISTS Leave; -- changed from Leave to Leave_ to avoid conflict with SQL keyword
+    DROP TABLE IF EXISTS Leave;
     DROP TABLE IF EXISTS Role_existsIn_Department;
     DROP TABLE IF EXISTS Employee_Role;
     DROP TABLE IF EXISTS Role;
@@ -20,7 +20,10 @@
     DROP TABLE IF EXISTS Employee;
     DROP TABLE IF EXISTS Department;
 
-GO;
+    -- TODO: should we also drop holiday
+    DROP TABLE IF EXISTS Holiday
+
+GO
 
 CREATE PROC dropAllProceduresFunctionsViews
 AS
@@ -101,9 +104,7 @@ CREATE PROC clearAllTables AS
     DELETE FROM Employee;
     DELETE FROM Department;
 
-GO;
-
--- TODO: looks sus, check with TA
+GO
 
 CREATE VIEW allEmployeeProfiles AS
 SELECT
@@ -121,7 +122,7 @@ SELECT
     accidental_balance
 FROM Employee;
 
-GO;
+GO
 
 CREATE VIEW NoEmployeeDept AS
 SELECT 
@@ -130,7 +131,7 @@ SELECT
 FROM Employee
 GROUP BY dept_name;
 
-GO;
+GO
 
 CREATE VIEW allPerformance AS
 SELECT 
@@ -143,9 +144,9 @@ SELECT
     P.semester
 FROM Performance P
 JOIN Employee E ON P.emp_ID = E.employee_ID
-WHERE P.semester LIKE 'W%'; -- not WIN because winter semesters might be W25 etc
+WHERE P.semester LIKE 'W%';
 
-GO;
+GO
 
 CREATE VIEW allRejectedMedicals AS
 SELECT 
@@ -162,7 +163,7 @@ JOIN Leave_ L ON M.request_ID = L.request_ID
 JOIN Employee E ON M.emp_ID = E.employee_ID
 WHERE L.final_approval_status = 'Rejected';
 
-GO;
+GO
 
 CREATE VIEW allEmployeeAttendance AS
 SELECT 
@@ -180,7 +181,7 @@ FROM Attendance A
 INNER JOIN Employee E ON A.emp_ID = E.employee_ID
 WHERE A.date = CAST(DATEADD(DAY, -1, GETDATE()) AS DATE);
 
-GO;
+GO
 
 ----------------------------------------------------------------
 --                          EXTRA PROC
@@ -195,4 +196,4 @@ CREATE PROC Update_All_Salaries AS
     JOIN Employee_Role ER ON ER.emp_ID = E.employee_ID
     JOIN Role R ON R.role_name = ER.role_name;
 
-GO;
+GO

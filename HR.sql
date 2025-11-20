@@ -25,7 +25,7 @@ BEGIN
     RETURN @isValid;
 END;
 
-GO;
+GO
 
 CREATE PROC HR_Approval_an_acc
     @request_ID INT,
@@ -83,7 +83,7 @@ AS
         END;
     END;
 
-GO;
+GO
 
 CREATE PROC HR_approval_unpaid
     @request_ID INT,
@@ -117,7 +117,7 @@ AS
         VALUES (@HR_ID, @request_ID, 'approved');
     END;
 
-GO;
+GO
 
 CREATE PROC HR_approval_compensation
     @request_ID INT,
@@ -166,7 +166,7 @@ AS
         VALUES (@HR_ID, @request_ID, 'approved');
     END;
 
-GO;
+GO
 
 CREATE PROC Deduction_hours
     @employee_ID INT
@@ -191,7 +191,7 @@ AS
 
     END;
 
-GO;
+GO
 
 CREATE FUNCTION Bonus_amount (@employee_ID INT)
     RETURNS DECIMAL(10,2)
@@ -234,7 +234,7 @@ BEGIN
     RETURN ISNULL(@bonus, 0);
 END;
 
-GO;
+GO
 
 CREATE PROCEDURE Add_Payroll
     @employee_ID INT,
@@ -286,6 +286,6 @@ BEGIN
       AND status = 'pending';
 END;
 
-GO;
+GO
 
 -- TODO: complete rest of HR

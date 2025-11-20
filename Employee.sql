@@ -23,7 +23,7 @@ BEGIN
     RETURN @isValid;
 END;
 
-GO;
+GO
 
 CREATE FUNCTION MyPerformance
 (
@@ -49,7 +49,7 @@ RETURN
       AND P.semester = @semester
 );
 
-GO;
+GO
 
 CREATE FUNCTION MyAttendance
 (
@@ -78,7 +78,7 @@ RETURN
       )
 );
 
-GO;
+GO
 
 CREATE FUNCTION Last_month_payroll
 (
@@ -104,7 +104,7 @@ RETURN
       AND YEAR(payment_date) = YEAR(DATEADD(MONTH, -1, CAST (GETDATE() AS DATE)))
 );
 
-GO;
+GO
 
 CREATE FUNCTION Deductions_Attendance
 (
@@ -130,7 +130,7 @@ RETURN
       AND D.type = 'missing days' OR D.type = 'missing hours' 
 );
 
-GO;
+GO
 
 CREATE FUNCTION Is_On_Leave
 (
@@ -175,7 +175,7 @@ BEGIN
     RETURN @isOnLeave;
 END;
 
-GO;
+GO
 
 --Salma's edits start from here
 CREATE PROC Submit_annual
@@ -195,7 +195,7 @@ AS
     INSERT INTO Annual_Leave(request_ID, emp_ID, replacement_emp)
     VALUES (@request_ID, @employee_ID, @replacement_emp);
 
-GO;
+GO
             
 --Adel's function
 CREATE FUNCTION Status_leaves
@@ -221,7 +221,7 @@ RETURN
       AND YEAR(L.date_of_request) = YEAR(CAST (GETDATE() AS DATE))
 );
 
-GO;
+GO
 
 --More of Salma's stuff (pls correct me if I made a mistakeee)
 CREATE PROC Submit_accidental
@@ -234,7 +234,7 @@ INSERT INTO Leave VALUES(CAST (GETDATE() AS DATE), @start_date, @end_date, 'pend
 DECLARE @request_id INT = SCOPE_IDENTITY();
 INSERT INTO Accidental_Leave VALUES(@request_id, @employee_ID)
 END 
-GO;
+GO
 --For medical and unpaid we have file_name and doc_desc which go into document. an insertion doesn't make sense 
 --bec we don't have any details abt the doc except these two. 
 CREATE PROC Submit_medical
@@ -256,7 +256,7 @@ UPDATE Document
 SET medical_ID = @request_id 
 WHERE  description = @document_description AND file_name = @file_name
 END 
-GO; 
+GO 
 
 CREATE PROC Submit_unpaid
 @employee_ID INT, 
@@ -274,7 +274,7 @@ UPDATE Document
 SET unpaid_ID = @request_id 
 WHERE  description = @document_description AND file_name = @file_name
 END 
-GO;
+GO
 
 CREATE PROC Upperboard_approve_annual
     @request_ID INT,
@@ -320,7 +320,7 @@ BEGIN
         VALUES(@Upperboard_ID, @request_ID, 'rejected');
     END
 END
-GO;
+GO
 --note: idk wth a "valid reason" is
 CREATE PROC Upperboard_approve_unpaids
 @request_ID INT,
@@ -340,7 +340,7 @@ INSERT INTO Employee_Approve_Leave
         VALUES(@Upperboard_ID, @request_ID, 'rejected');
 END 
 END 
-GO;
+GO
 --TODO: Create separate folders 
     
 CREATE PROC Dean_andHR_Evaluation
@@ -352,7 +352,7 @@ AS
 BEGIN 
 INSERT INTO Performance VALUES(@rating, @comment, @semester, @employee_ID)
 END 
-GO;
+GO
 --This depends on the fact that any entry into EmployeeApproveLEave is either accepted or rejected because it is still pending in the Leave table anyway
 --again pls correct me if I am wrong 
 CREATE PROC Final_Status 
@@ -371,4 +371,4 @@ UPDATE Leave
 SET final_approval_status = 'rejected' 
 WHERE request_ID = @request_ID
 END 
-GO; 
+GO 
