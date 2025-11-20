@@ -294,3 +294,52 @@ CREATE TRIGGER trg_InsertEmployeeRole
     END;
 
 GO
+
+
+
+
+CREATE TRIGGER trg_InsertEmployeeRole
+ON Role
+INSTEAD OF INSERT
+AS
+BEGIN
+    -- If any inserted HR_Representative_* has an invalid department suffix,
+    -- skip inserting all of them
+    IF EXISTS (
+        SELECT *
+        FROM inserted i
+        WHERE i.role_name LIKE 'HR_Representative_%'
+          AND SUBSTRING(i.role_name, 18, LEN(i.role_name) - 17)
+              NOT IN (SELECT name FROM Department)
+    )
+    BEGIN
+        -- error message for debugging we can delete it later 
+        PRINT 'Invalid HR Representative role_name: department does not exist.';
+        RETURN;
+    END;
+
+    -- Otherwise insert all rows as normal
+    INSERT INTO Role (
+        role_name,
+        title,
+        description,
+        rank,
+        base_salary,
+        percentage_YOE,
+        percentage_overtime,
+        annual_balance,
+        accidental_balance
+    )
+    SELECT
+        role_name,
+        title,
+        description,
+        rank,
+        base_salary,
+        percentage_YOE,
+        percentage_overtime,
+        annual_balance,
+        accidental_balance
+    FROM inserted;
+END;
+GO
