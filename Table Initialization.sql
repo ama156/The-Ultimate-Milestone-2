@@ -274,29 +274,7 @@ CREATE PROC createAllTables AS
         CHECK (status IN ('approved', 'rejected', 'pending'))
     );
 
-GO
-
-CREATE TRIGGER trg_InsertEmployeeRole
-    ON Role INSTEAD OF INSERT
-    AS BEGIN
-        IF EXISTS (
-            -- this thing is brutal, it uses demorgans to reverse a condition that is already
-            -- way too complicated
-            SELECT 1
-            FROM inserted i
-            WHERE i.role_name LIKE 'HR_Representative%'
-              AND SUBSTRING(i.role_name, 18, LEN(i.role_name) - 17)
-                    NOT IN (SELECT name FROM Department)
-        ) BEGIN
-            PRINT 'Invalid role_name department.'
-            -- TODO: make it not insert the value if it is wrong
-        END;
-    END;
-
-GO
-
-
-
+go
 
 CREATE TRIGGER trg_InsertEmployeeRole
 ON Role
@@ -318,7 +296,7 @@ BEGIN
         RETURN;
     END;
 
-    -- Otherwise insert all rows as normal
+    -- Otherwise insert 
     INSERT INTO Role (
         role_name,
         title,
@@ -342,4 +320,3 @@ BEGIN
         accidental_balance
     FROM inserted;
 END;
-GO
